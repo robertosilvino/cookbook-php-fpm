@@ -20,19 +20,14 @@
 
 case node['platform']
 when 'ubuntu'
-  if node['platform_version'].to_f <= 10.04
-    # Configure Brian's PPA
-    # We'll install php5-fpm from the Brian's PPA backports
-    apt_repository "brianmercer-php" do
-      uri "http://ppa.launchpad.net/brianmercer/php/ubuntu"
-      distribution node['lsb']['codename']
-      components ["main"]
-      keyserver "keyserver.ubuntu.com"
-      key "8D0DC64F"
-      action :add
-    end
-    # FIXME: apt-get update didn't trigger in above
-    execute "apt-get update"
+  apt_repository "ondrej" do
+    uri "http://ppa.launchpad.net/ondrej/php5/ubuntu"
+    distribution node['lsb']['codename']
+    components ["main"]
+    keyserver "keyserver.ubuntu.com"
+    key "E5267A6C"
+    action :add
+    notifies :run, 'execute[apt-get update]', :immediately
   end
 when 'debian'
   # Configure Dotdeb repos
@@ -71,14 +66,4 @@ when 'debian'
     end
   end
 
-when 'amazon', 'fedora', 'centos', 'redhat'
-  unless platform?('centos', 'redhat') && node['platform_version'].to_f >= 6.4
-    yum_repository 'remi' do
-      description 'Remi'
-      url node['php-fpm']['yum_url']
-      mirrorlist node['php-fpm']['yum_mirrorlist']
-      gpgkey 'http://rpms.famillecollet.com/RPM-GPG-KEY-remi'
-      action :add
-    end
-  end
 end

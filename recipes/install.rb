@@ -22,11 +22,7 @@ include_recipe 'php-fpm::repository' unless node['php-fpm']['skip_repository_ins
 include_recipe 'apt::default' if node['platform_family'] == 'debian'
 
 if node['php-fpm']['package_name'].nil?
-  if platform_family?("rhel", "fedora")
-    php_fpm_package_name = "php-fpm"
-  else
-    php_fpm_package_name = "php5-fpm"
-  end
+  php_fpm_package_name = "php5-fpm"
 else
   php_fpm_package_name = node['php-fpm']['package_name']
 end
@@ -52,6 +48,7 @@ directory node['php-fpm']['log_dir']
 service "php-fpm" do
   provider service_provider if service_provider
   service_name php_fpm_service_name
-  supports :start => true, :stop => true, :restart => true, :reload => true
+  # Don't need to override support on services: Gabriel Mazetto
+  # supports :start => true, :stop => true, :restart => true, :reload => true
   action [ :enable, :start ]
 end
